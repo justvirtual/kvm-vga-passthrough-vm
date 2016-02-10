@@ -1,0 +1,17 @@
+#!/bin/bash
+HUGE_SIZE_MB=6144
+HUGE_PAGE_SIZE_KB=`grep Hugepagesize /proc/meminfo | awk '{print $2}'` 
+HUGE_PAGE_SIZE_MB=$((HUGE_PAGE_SIZE_KB/1024))
+HUGE_PAGES_NEEDED=$(((HUGE_SIZE_MB+HUGE_PAGE_SIZE_MB-1)/HUGE_PAGE_SIZE_MB))
+echo $HUGE_PAGES_NEEDED >/proc/sys/vm/nr_hugepages 
+HUGE_PAGES_ALLOCATED=`cat /proc/sys/vm/nr_hugepages`
+SHMMAX_NEEDED=$((HUGE_PAGES_ALLOCATED*HUGE_PAGE_SIZE_KB*1024)) 
+echo $SHMMAX_NEEDED > /proc/sys/kernel/shmmax
+PAGE_SIZE=`getconf PAGE_SIZE` 
+SHMALL_NEEDED=$((SHMMAX_NEEDED/PAGE_SIZE)) 
+echo $SHMALL_NEEDED > /proc/sys/kernel/shmall
+
+if [ ! -d /dev/hugepages ]; then
+	mkdir -p /dev/hugepages
+fi
+	mount -t hugetlbfs hugetlbfs /dev/hugepages
