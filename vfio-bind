@@ -1,0 +1,15 @@
+#!/bin/bash
+
+dev="" #这里填上lspci获取的总线
+set +x
+
+for dev in $dev ; do
+        vendor=$(cat /sys/bus/pci/devices/$dev/vendor)
+        device=$(cat /sys/bus/pci/devices/$dev/device)
+        if [ -e /sys/bus/pci/devices/$dev/driver ]; then
+                echo $dev > /sys/bus/pci/devices/$dev/driver/unbind
+        fi
+        echo $vendor $device > /sys/bus/pci/drivers/vfio-pci/new_id
+done
+
+exit 0
