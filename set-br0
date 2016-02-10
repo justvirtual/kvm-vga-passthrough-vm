@@ -1,0 +1,7 @@
+#!/bin/bash
+
+brctl addbr br0
+brctl addif br0 enp4s0
+brctl stp br0 on
+dhclient br0
+route
